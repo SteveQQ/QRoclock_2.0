@@ -11,9 +11,9 @@ import java.util.List;
 public interface Repository {
     void open();
     void close();
-    int createAlarm(Alarm alarm);
+    Alarm createAlarm(Alarm alarm);
     List<Alarm> getAlarms();
-    Alarm getAlarmById();
+    Alarm getAlarmById(long id);
     Boolean updateAlarm(Alarm alarm);
     Boolean deleteAlarm(Alarm alarm);
 }

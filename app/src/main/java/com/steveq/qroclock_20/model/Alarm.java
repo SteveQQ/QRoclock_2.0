@@ -7,7 +7,7 @@ package com.steveq.qroclock_20.model;
 public class Alarm {
     private long id;
     private String time;
-    private String alarm;
+    private String ringtone;
     private Boolean active;
 
     public Alarm(){}
@@ -28,12 +28,12 @@ public class Alarm {
         this.time = time;
     }
 
-    public String getAlarm() {
-        return alarm;
+    public String getRingtone() {
+        return ringtone;
     }
 
-    public void setAlarm(String alarm) {
-        this.alarm = alarm;
+    public void setRingtone(String ringtone) {
+        this.ringtone = ringtone;
     }
 
     public Boolean getActive() {
