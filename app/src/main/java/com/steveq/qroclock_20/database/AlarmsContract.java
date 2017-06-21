@@ -20,14 +20,9 @@ public final class AlarmsContract {
         public static final String COLUMN_ACTIVE = "active";
     }
 
-    public static class DaysEntry implements BaseColumns {
-        public static final String TABLE_NAME = "days_table";
-        public static final String COLUMN_DAY = "day";
-    }
-
     public static class AlarmsDaysEntry implements BaseColumns {
         public static final String TABLE_NAME = "alarms_days_table";
         public static final String COLUMN_ALARM_ID = "alarm_id";
-        public static final String COLUMN_DAY_ID = "day_id";
+        public static final String COLUMN_DAY = "day";
     }
 }

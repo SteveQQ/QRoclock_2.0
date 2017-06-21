@@ -8,7 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import com.steveq.qroclock_20.model.Alarm;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Adam on 2017-06-19.
@@ -139,5 +142,121 @@ public class AlarmsRepository implements Repository{
         int affectedRows = database.delete(AlarmsContract.AlarmsEntry.TABLE_NAME, AlarmsContract.AlarmsEntry._ID + "=?", new String[]{String.valueOf(alarm.getId())});
         close();
         return affectedRows > 1;
+    }
+
+    @Override
+    public List<Long> createAlarmDay(long alarmId, List<String> days) {
+        List<Long> result = new ArrayList<>();
+        open();
+        for(String day : days){
+            ContentValues values = new ContentValues();
+            values.put(AlarmsContract.AlarmsDaysEntry.COLUMN_ALARM_ID, alarmId);
+            values.put(AlarmsContract.AlarmsDaysEntry.COLUMN_DAY, day);
+            result.add(database.insert(AlarmsContract.AlarmsDaysEntry.TABLE_NAME, null, values));
+        }
+        close();
+        return result;
+    }
+
+    @Override
+    public List<String> getDaysForAlarm(long alarmId) {
+        open();
+
+        Cursor cursor = database.query(
+                AlarmsContract.AlarmsDaysEntry.TABLE_NAME,
+                new String[]{AlarmsContract.AlarmsDaysEntry.COLUMN_DAY},
+                AlarmsContract.AlarmsDaysEntry.COLUMN_ALARM_ID + " = ?",
+                new String[]{String.valueOf(alarmId)},
+                null,
+                null,
+                null
+        );
+
+        List<String> days = new ArrayList<>();
+        while(cursor.moveToNext()){
+            days.add(cursor.getString(cursor.getColumnIndex(AlarmsContract.AlarmsDaysEntry.COLUMN_DAY)));
+        }
+        cursor.close();
+        close();
+        return days;
+    }
+
+    private class UpdatePackage{
+        private List<String> toAdd;
+        private List<String> toDelete;
+
+        public UpdatePackage(List<String> toAdd, List<String> toDelete) {
+            this.toAdd = toAdd;
+            this.toDelete = toDelete;
+        }
+
+        public List<String> getToAdd() {
+            return toAdd;
+        }
+
+        public void setToAdd(List<String> toAdd) {
+            this.toAdd = toAdd;
+        }
+
+        public List<String> getToDelete() {
+            return toDelete;
+        }
+
+        public void setToDelete(List<String> toDelete) {
+            this.toDelete = toDelete;
+        }
+    }
+
+    private UpdatePackage getUpdatePackage(List<String> oldDays, List<String> daysToUpdate){
+        List<String> newDays = new ArrayList<>();
+        for(String dayToUpdate : daysToUpdate){
+            int i = 0;
+            for(String oldDay : oldDays){
+                System.err.println("DAY TO UPDATE : " + dayToUpdate);
+                System.err.println("OLD DAY : " + oldDay);
+                if(dayToUpdate.equals(oldDay)){
+                    oldDays.remove(i);
+                    i = -1;
+                    break;
+                }
+                i++;
+            }
+            if(i != -1){
+                newDays.add(dayToUpdate);
+            }
+        }
+        return new UpdatePackage(newDays, oldDays);
+    }
+
+    @Override
+    public void updateAlarmDays(long alarmId, List<String> days) {
+        List<String> currentDays = getDaysForAlarm(alarmId);
+        UpdatePackage updatePackage = getUpdatePackage(currentDays, days);
+
+        System.err.println("TO DELETE : " + updatePackage.getToDelete());
+        System.err.println("TO ADD : " + updatePackage.getToAdd());
+
+        deleteAlarmDayEntries(alarmId, updatePackage.getToDelete());
+        createAlarmDay(alarmId, updatePackage.getToAdd());
+    }
+
+    @Override
+    public Boolean deleteAlarmDays(long alarmId) {
+        open();
+        int affectedRows = database.delete(AlarmsContract.AlarmsDaysEntry.TABLE_NAME, AlarmsContract.AlarmsDaysEntry.COLUMN_ALARM_ID + "=?", new String[]{String.valueOf(alarmId)});
+        close();
+        return affectedRows > 1;
+    }
+
+    @Override
+    public Boolean deleteAlarmDayEntries(long alarmId, List<String> days) {
+        open();
+        boolean deleted = false;
+        for(String day : days){
+            int affectedRows = database.delete(AlarmsContract.AlarmsDaysEntry.TABLE_NAME, AlarmsContract.AlarmsDaysEntry.COLUMN_ALARM_ID + "=? and " + AlarmsContract.AlarmsDaysEntry.COLUMN_DAY + "=?", new String[]{String.valueOf(alarmId), day});
+            if(affectedRows > 0) deleted = true ;
+        }
+        close();
+        return deleted;
     }
 }
