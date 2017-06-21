@@ -1,8 +1,9 @@
-package com.steveq.qroclock_20;
+package com.steveq.qroclock_20.presentation.activities;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.database.AlarmsRepository;
 import com.steveq.qroclock_20.database.Repository;
 
