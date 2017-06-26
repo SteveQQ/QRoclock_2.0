@@ -105,7 +105,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setActive(true);
         testAlarm1 = repository.createAlarm(testAlarm1);
 
-        List<Long> createdIds = repository.createAlarmDay(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
+        List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
 
         System.err.println(TAG + " : CREATED IDS : " + createdIds);
 
@@ -120,7 +120,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setActive(true);
         testAlarm1 = repository.createAlarm(testAlarm1);
 
-        List<Long> createdIds = repository.createAlarmDay(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"WRONG"})));
+        List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"WRONG"})));
 
         System.err.println(TAG + " : CREATED IDS : " + createdIds);
 
@@ -136,7 +136,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setActive(true);
         testAlarm1 = repository.createAlarm(testAlarm1);
 
-        List<Long> createdIds = repository.createAlarmDay(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
+        List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
         repository.deleteAlarmDays(testAlarm1.getId());
         System.err.println(TAG + " : CREATED IDS : " + createdIds);
 
@@ -151,7 +151,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setActive(true);
         testAlarm1 = repository.createAlarm(testAlarm1);
 
-        List<Long> createdIds = repository.createAlarmDay(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
+        List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
         repository.deleteAlarmDayEntries(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"MONDAY"})));
         System.err.println(TAG + " : CREATED IDS : " + createdIds);
 
@@ -166,8 +166,8 @@ public class AlarmRepositoryTest {
         testAlarm1.setActive(true);
         testAlarm1 = repository.createAlarm(testAlarm1);
 
-        List<Long> createdIds = repository.createAlarmDay(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
-        repository.updateAlarmDays(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "THURSDAY", "FRIDAY"})));
+        List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
+        repository.updateAlarmDays(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "THURSDAY", "FRIDAY"})));
         System.err.println(TAG + " : UPDATED DAYS : " + repository.getDaysForAlarm(testAlarm1.getId()));
 
         assertEquals(3, repository.getDaysForAlarm(testAlarm1.getId()).size());
@@ -181,8 +181,8 @@ public class AlarmRepositoryTest {
         testAlarm1.setActive(true);
         testAlarm1 = repository.createAlarm(testAlarm1);
 
-        List<Long> createdIds = repository.createAlarmDay(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
-        repository.updateAlarmDays(testAlarm1.getId(), new ArrayList<String>(Arrays.asList(new String[]{"FRIDAY"})));
+        List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
+        repository.updateAlarmDays(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"FRIDAY"})));
         System.err.println(TAG + " : UPDATED DAYS : " + repository.getDaysForAlarm(testAlarm1.getId()));
 
         assertEquals(1, repository.getDaysForAlarm(testAlarm1.getId()).size());
