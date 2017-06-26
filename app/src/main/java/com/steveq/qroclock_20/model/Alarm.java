@@ -1,5 +1,7 @@
 package com.steveq.qroclock_20.model;
 
+import java.util.List;
+
 /**
  * Created by Adam on 2017-06-19.
  */
@@ -9,6 +11,7 @@ public class Alarm {
     private String time;
     private String ringtone;
     private Boolean active;
+    private List<String> daysRepeat;
 
     public Alarm(){}
 
@@ -42,5 +45,13 @@ public class Alarm {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public List<String> getDaysRepeat() {
+        return daysRepeat;
+    }
+
+    public void setDaysRepeat(List<String> daysRepeat) {
+        this.daysRepeat = daysRepeat;
     }
 }

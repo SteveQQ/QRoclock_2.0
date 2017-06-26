@@ -145,15 +145,16 @@ public class AlarmsRepository implements Repository{
     }
 
     @Override
-    public List<Long> createAlarmDay(long alarmId, List<String> days) {
+    public List<Long> createAlarmDay(Alarm alarm, List<String> days) {
         List<Long> result = new ArrayList<>();
         open();
         for(String day : days){
             ContentValues values = new ContentValues();
-            values.put(AlarmsContract.AlarmsDaysEntry.COLUMN_ALARM_ID, alarmId);
+            values.put(AlarmsContract.AlarmsDaysEntry.COLUMN_ALARM_ID, alarm.getId());
             values.put(AlarmsContract.AlarmsDaysEntry.COLUMN_DAY, day);
             result.add(database.insert(AlarmsContract.AlarmsDaysEntry.TABLE_NAME, null, values));
         }
+        alarm.setDaysRepeat(days);
         close();
         return result;
     }
@@ -229,15 +230,15 @@ public class AlarmsRepository implements Repository{
     }
 
     @Override
-    public void updateAlarmDays(long alarmId, List<String> days) {
-        List<String> currentDays = getDaysForAlarm(alarmId);
+    public void updateAlarmDays(Alarm alarm, List<String> days) {
+        List<String> currentDays = getDaysForAlarm(alarm.getId());
         UpdatePackage updatePackage = getUpdatePackage(currentDays, days);
 
         System.err.println("TO DELETE : " + updatePackage.getToDelete());
         System.err.println("TO ADD : " + updatePackage.getToAdd());
 
-        deleteAlarmDayEntries(alarmId, updatePackage.getToDelete());
-        createAlarmDay(alarmId, updatePackage.getToAdd());
+        deleteAlarmDayEntries(alarm.getId(), updatePackage.getToDelete());
+        createAlarmDay(alarm, updatePackage.getToAdd());
     }
 
     @Override
