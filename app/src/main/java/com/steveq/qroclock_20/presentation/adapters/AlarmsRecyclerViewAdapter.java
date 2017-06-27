@@ -22,17 +22,9 @@ import java.util.List;
 
 public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecyclerViewAdapter.RCViewHolder>{
     private List<Alarm> payload;
-    private Repository repository;
 
-    public AlarmsRecyclerViewAdapter(Context context){
-        repository = new AlarmsRepository(context);
-        payload = repository.getAlarms();
-
-    }
-
-    private void updatePayload(){
-        payload = repository.getAlarms();
-        this.notifyDataSetChanged();
+    public AlarmsRecyclerViewAdapter(List<Alarm> alarms){
+        payload = alarms;
     }
 
     @Override

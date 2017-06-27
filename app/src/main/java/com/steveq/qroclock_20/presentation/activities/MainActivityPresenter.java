@@ -5,4 +5,6 @@ package com.steveq.qroclock_20.presentation.activities;
  */
 
 public interface MainActivityPresenter {
+    void initView();
+    void showAddAlarmDialog();
 }
