@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context="com.steveq.qroclock_20.presentation.activities.MainActivity">
 
     <TextView
@@ -16,10 +15,15 @@
         android:visibility="gone"
         android:text="no alarms"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/alarmsRecyclerView"
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/alarmsRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </android.support.v4.widget.NestedScrollView>
+
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addAlarmFab"

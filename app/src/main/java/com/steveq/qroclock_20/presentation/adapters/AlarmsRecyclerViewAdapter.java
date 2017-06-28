@@ -2,6 +2,10 @@ package com.steveq.qroclock_20.presentation.adapters;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
@@ -57,6 +61,12 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         String daysDescription = createDaysDescription(payload.get(position));
         holder.repeatDaysTextView.setText(daysDescription);
         holder.activeCompatSwitch.setChecked(payload.get(position).getActive());
+        Log.d(TAG, "content:/" + payload.get(position).getRingtone());
+
+        Uri ringtoneUri = Uri.parse("content://media" + payload.get(position).getRingtone());
+        Log.d(TAG, RingtoneManager.getRingtone(context, ringtoneUri).getTitle(context));
+        holder.currentRingtoneTextView.setText(RingtoneManager.getRingtone(context, ringtoneUri).getTitle(context));
+
     }
 
     @Override
@@ -69,12 +79,14 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         TextView alarmTimeTextView;
         TextView repeatDaysTextView;
         SwitchCompat activeCompatSwitch;
+        TextView currentRingtoneTextView;
 
         public RCViewHolder(View itemView) {
             super(itemView);
             alarmTimeTextView = (TextView) itemView.findViewById(R.id.alarmTimeTextView);
             repeatDaysTextView = (TextView) itemView.findViewById(R.id.repeatDaysTextView);
             activeCompatSwitch = (SwitchCompat) itemView.findViewById(R.id.activeCompatSwitch);
+            currentRingtoneTextView = (TextView) itemView.findViewById(R.id.currentRingtoneTextView);
         }
     }
 

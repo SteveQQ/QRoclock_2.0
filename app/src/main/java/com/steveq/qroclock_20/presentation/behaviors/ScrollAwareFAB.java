@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -11,13 +12,21 @@ import android.view.View;
  */
 
 public class ScrollAwareFAB extends FloatingActionButton.Behavior {
+    private static final String TAG = ScrollAwareFAB.class.getSimpleName();
+    public ScrollAwareFAB(){};
 
     public ScrollAwareFAB(Context context, AttributeSet attrs) {
-        super();
+        super(context, attrs);
+    }
+
+    @Override
+    public boolean onStartNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child, View directTargetChild, View target, int nestedScrollAxes) {
+        return true;
     }
 
     @Override
     public void onNestedScroll(CoordinatorLayout coordinatorLayout, FloatingActionButton child, View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+        Log.d(TAG, String.valueOf(child.getVisibility()));
         super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
         if(dyConsumed > 0 && child.getVisibility() == View.VISIBLE){
             child.hide();
