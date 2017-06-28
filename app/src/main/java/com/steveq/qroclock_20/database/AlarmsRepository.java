@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.steveq.qroclock_20.model.Alarm;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +51,10 @@ public class AlarmsRepository implements Repository{
         values.put(AlarmsContract.AlarmsEntry.COLUMN_ACTIVE, (alarmState) ? 1 : 0);
         long id = database.insert(AlarmsContract.AlarmsEntry.TABLE_NAME, null, values);
         close();
-
         alarm.setId(id);
+        if(alarm.getDaysRepeat().size() != 0){
+            createAlarmDay(alarm,alarm.getDaysRepeat());
+        }
         return alarm;
     }
 
@@ -67,19 +70,22 @@ public class AlarmsRepository implements Repository{
                 null,
                 null
         );
-        List<Alarm> alarms = new ArrayList<>();
+        Map<Long, Alarm> alarms = new HashMap();
         while(cursor.moveToNext()){
             Alarm alarm = new Alarm();
             alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmsContract.AlarmsEntry._ID)));
             alarm.setTime(cursor.getString(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_TIME)));
             alarm.setRingtone(cursor.getString(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_RINGTONE)));
             int activeStatus = cursor.getInt(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_ACTIVE));
-            alarm.setActive(activeStatus == 0);
-            alarms.add(alarm);
+            alarm.setActive(activeStatus != 0);
+            alarms.put(alarm.getId(), alarm);
         }
         cursor.close();
         close();
-        return alarms;
+        for(Long id : alarms.keySet()){
+            alarms.get(id).setDaysRepeat(getDaysForAlarm(id));
+        }
+        return new ArrayList<>(alarms.values());
     }
 
     @Override

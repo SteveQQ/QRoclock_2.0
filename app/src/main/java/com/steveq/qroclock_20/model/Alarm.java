@@ -54,4 +54,15 @@ public class Alarm {
     public void setDaysRepeat(List<String> daysRepeat) {
         this.daysRepeat = daysRepeat;
     }
+
+    @Override
+    public String toString() {
+        return "Alarm{" +
+                "id=" + id +
+                ", time='" + time + '\'' +
+                ", ringtone='" + ringtone + '\'' +
+                ", active=" + active +
+                ", daysRepeat=" + daysRepeat +
+                '}';
+    }
 }

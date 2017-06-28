@@ -1,8 +1,10 @@
 package com.steveq.qroclock_20.presentation.adapters;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +15,10 @@ import com.steveq.qroclock_20.database.AlarmsRepository;
 import com.steveq.qroclock_20.database.Repository;
 import com.steveq.qroclock_20.model.Alarm;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,10 +26,21 @@ import java.util.List;
  */
 
 public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecyclerViewAdapter.RCViewHolder>{
+    private static final String TAG = AlarmsRecyclerViewAdapter.class.getSimpleName();
+    private Context context;
     private List<Alarm> payload;
 
-    public AlarmsRecyclerViewAdapter(List<Alarm> alarms){
-        payload = alarms;
+    public AlarmsRecyclerViewAdapter(Context ctx, List<Alarm> alarms){
+        this.payload = alarms;
+        this.context = ctx;
+    }
+
+    public List<Alarm> getPayload() {
+        return payload;
+    }
+
+    public void setPayload(List<Alarm> payload) {
+        this.payload = payload;
     }
 
     @Override
@@ -36,8 +52,10 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
     @Override
     public void onBindViewHolder(RCViewHolder holder, int position) {
         holder.alarmTimeTextView.setText(payload.get(position).getTime());
-        List<String> daysRepeatShorts = createShortsOfDays(payload.get(position).getDaysRepeat());
-        holder.repeatDaysTextView.setText(joinList(daysRepeatShorts));
+        Log.d(TAG, payload.get(position).toString());
+        Log.d(TAG, payload.get(position).getDaysRepeat().toString());
+        String daysDescription = createDaysDescription(payload.get(position));
+        holder.repeatDaysTextView.setText(daysDescription);
         holder.activeCompatSwitch.setChecked(payload.get(position).getActive());
     }
 
@@ -72,12 +90,28 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         return builder.toString();
     }
 
-    private List<String> createShortsOfDays(List<String> days){
-        List<String> result = new ArrayList<>();
-        for(String day : days){
-            result.add(day.substring(0, 3).toLowerCase() + ".");
+    private String createDaysDescription(Alarm alarm){
+        List<String> days = alarm.getDaysRepeat();
+        if(days.isEmpty()){
+            String result;
+            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+            try {
+                if(sdf.parse(alarm.getTime()).before(sdf.parse(sdf.format(new Date())))){
+                    return result = context.getResources().getString(R.string.tommorow);
+                } else {
+                    return result = context.getResources().getString(R.string.today);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return "";
+            }
+        } else {
+            List<String> result = new ArrayList<>();
+            for(String day : days){
+                result.add(day.substring(0, 3).toLowerCase() + ".");
+            }
+            return joinList(result);
         }
-        return result;
     }
     //------ HELPERS ------//
 }

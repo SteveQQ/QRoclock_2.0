@@ -2,6 +2,7 @@ package com.steveq.qroclock_20.presentation.activities;
 
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
+import android.content.res.Resources;
 import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     public void configRecyclerView(RecyclerView.Adapter adapter) {
         alarmsRecyclerView.setHasFixedSize(true);
         alarmsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        alarmsRecyclerView.setAdapter(adapter);
     }
 
     @Override
