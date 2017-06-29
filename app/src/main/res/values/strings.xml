@@ -12,4 +12,5 @@
     <string name="default_ringtone_uri">/internal/audio/media/20</string>
     <string name="today">Today</string>
     <string name="tommorow">Tomorrow</string>
+    <string name="ringtone">Ringtone</string>
 </resources>

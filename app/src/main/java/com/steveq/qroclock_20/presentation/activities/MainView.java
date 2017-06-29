@@ -11,4 +11,5 @@ public interface MainView {
     void showRecyclerView();
     void hideRecyclerView();
     void showAddAlarmDialog();
+    void showDaysDialog();
 }

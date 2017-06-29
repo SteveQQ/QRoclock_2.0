@@ -1,9 +1,12 @@
 package com.steveq.qroclock_20.presentation.activities;
 
+import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.icu.util.Calendar;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -56,19 +59,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
         alarmsRecyclerView.setHasFixedSize(true);
         alarmsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         alarmsRecyclerView.setAdapter(adapter);
-        //alarmsRecyclerView.setNestedScrollingEnabled(true);
-//        alarmsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                Log.d(TAG, "DY : " + dy);
-//                super.onScrolled(recyclerView, dx, dy);
-//                if(dy > 0){
-//                    alarmFab.hide();
-//                } else if (dy < 0){
-//                    alarmFab.show();
-//                }
-//            }
-//        });
     }
 
     @Override
@@ -96,4 +86,17 @@ public class MainActivity extends AppCompatActivity implements MainView {
         TimePickerDialog tmd = new TimePickerDialog(this, (TimePickerDialog.OnTimeSetListener)presenter, Integer.valueOf(sdfHours.format(new Date())) + 1, Integer.valueOf(sdfMinutes.format(new Date())), true);
         tmd.show();
     }
+
+    @Override
+    public void showDaysDialog() {
+        MainActivityPresenterImpl.DaysListener listener = new MainActivityPresenterImpl.DaysListener();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getResources().getString(R.string.ringtone))
+                .setMultiChoiceItems(getResources().getStringArray(R.array.days), null, listener)
+                .setPositiveButton("OK", presenter.collectDays())
+                .setNegativeButton("CANCEL", null);
+        builder.create().show();
+    }
+
+
 }

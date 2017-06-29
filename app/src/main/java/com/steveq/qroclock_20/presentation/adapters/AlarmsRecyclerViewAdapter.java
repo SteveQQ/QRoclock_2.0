@@ -18,6 +18,7 @@ import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.database.AlarmsRepository;
 import com.steveq.qroclock_20.database.Repository;
 import com.steveq.qroclock_20.model.Alarm;
+import com.steveq.qroclock_20.presentation.activities.MainActivityPresenterImpl;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,6 +62,9 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         String daysDescription = createDaysDescription(payload.get(position));
         holder.repeatDaysTextView.setText(daysDescription);
         holder.activeCompatSwitch.setChecked(payload.get(position).getActive());
+        MainActivityPresenterImpl.RowClickListener listener = new MainActivityPresenterImpl.RowClickListener();
+        listener.setSelectedAlarm(payload.get(position));
+        holder.repeatDaysTextView.setOnClickListener(listener);
         Log.d(TAG, "content:/" + payload.get(position).getRingtone());
 
         Uri ringtoneUri = Uri.parse("content://media" + payload.get(position).getRingtone());
