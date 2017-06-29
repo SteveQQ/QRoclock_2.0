@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements MainView {
+    private static final String TAG = MainActivity.class.getSimpleName();
     private RecyclerView alarmsRecyclerView;
     private TextView emptyTextView;
     private FloatingActionButton alarmFab;
@@ -54,6 +56,19 @@ public class MainActivity extends AppCompatActivity implements MainView {
         alarmsRecyclerView.setHasFixedSize(true);
         alarmsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         alarmsRecyclerView.setAdapter(adapter);
+        //alarmsRecyclerView.setNestedScrollingEnabled(true);
+//        alarmsRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                Log.d(TAG, "DY : " + dy);
+//                super.onScrolled(recyclerView, dx, dy);
+//                if(dy > 0){
+//                    alarmFab.hide();
+//                } else if (dy < 0){
+//                    alarmFab.show();
+//                }
+//            }
+//        });
     }
 
     @Override
