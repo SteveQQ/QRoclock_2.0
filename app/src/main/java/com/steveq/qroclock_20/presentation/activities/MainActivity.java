@@ -2,6 +2,7 @@ package com.steveq.qroclock_20.presentation.activities;
 
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.RingtoneManager;
@@ -23,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 public class MainActivity extends AppCompatActivity implements MainView {
     private static final String TAG = MainActivity.class.getSimpleName();
     private RecyclerView alarmsRecyclerView;
@@ -38,6 +41,11 @@ public class MainActivity extends AppCompatActivity implements MainView {
             presenter.showAddAlarmDialog(new Alarm());
         }
     };
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         SimpleDateFormat sdfMinutes = new SimpleDateFormat("mm");
         TimePickerDialog.OnTimeSetListener listener = new MainActivityPresenterImpl.TimeListener(initAlarm);
         TimePickerDialog tmd = new TimePickerDialog(this, listener, Integer.valueOf(sdfHours.format(new Date())) + 1, Integer.valueOf(sdfMinutes.format(new Date())), true);
+        tmd.getWindow().setBackgroundDrawableResource(R.color.material_teal_200);
         tmd.show();
     }
 
@@ -105,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         final MainActivityPresenterImpl.DaysListener listener = new MainActivityPresenterImpl.DaysListener();
         Log.d(TAG, "DAYS TO CHECK : " + daysToCheck);
         listener.setChosenDays(daysToCheck);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogTheme);
         builder.setTitle(getResources().getString(R.string.ringtone))
                 .setMultiChoiceItems(getResources().getStringArray(R.array.days), checkedItems, listener)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -115,7 +124,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
                     }
                 })
                 .setNegativeButton("CANCEL", null);
-        builder.create().show();
+        AlertDialog dialog = builder.create();
+        dialog.show();
     }
 
     @Override
