@@ -1,24 +1,22 @@
 package com.steveq.qroclock_20.presentation.adapters;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
-import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.provider.OpenableColumns;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.steveq.qroclock_20.R;
-import com.steveq.qroclock_20.database.AlarmsRepository;
-import com.steveq.qroclock_20.database.Repository;
 import com.steveq.qroclock_20.model.Alarm;
 import com.steveq.qroclock_20.presentation.activities.MainActivityPresenterImpl;
+import com.steveq.qroclock_20.presentation.activities.MainView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,12 +30,12 @@ import java.util.List;
 
 public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecyclerViewAdapter.RCViewHolder>{
     private static final String TAG = AlarmsRecyclerViewAdapter.class.getSimpleName();
-    private Context context;
+    private Activity activity;
     private List<Alarm> payload;
 
-    public AlarmsRecyclerViewAdapter(Context ctx, List<Alarm> alarms){
+    public AlarmsRecyclerViewAdapter(Activity ctx, List<Alarm> alarms){
         this.payload = alarms;
-        this.context = ctx;
+        this.activity = ctx;
     }
 
     public List<Alarm> getPayload() {
@@ -62,14 +60,19 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         String daysDescription = createDaysDescription(payload.get(position));
         holder.repeatDaysTextView.setText(daysDescription);
         holder.activeCompatSwitch.setChecked(payload.get(position).getActive());
+
         MainActivityPresenterImpl.RowClickListener listener = new MainActivityPresenterImpl.RowClickListener();
-        listener.setSelectedAlarm(payload.get(position));
+        holder.alarmTimeTextView.setOnClickListener(listener);
         holder.repeatDaysTextView.setOnClickListener(listener);
+        holder.activeCompatSwitch.setOnClickListener(listener);
+        holder.currentRingtoneTextView.setOnClickListener(listener);
+        holder.deleteImageView.setOnClickListener(listener);
+        listener.setAlarm(payload.get(position));
         Log.d(TAG, "content:/" + payload.get(position).getRingtone());
 
         Uri ringtoneUri = Uri.parse("content://media" + payload.get(position).getRingtone());
-        Log.d(TAG, RingtoneManager.getRingtone(context, ringtoneUri).getTitle(context));
-        holder.currentRingtoneTextView.setText(RingtoneManager.getRingtone(context, ringtoneUri).getTitle(context));
+        Log.d(TAG, RingtoneManager.getRingtone(activity, ringtoneUri).getTitle(activity));
+        holder.currentRingtoneTextView.setText(RingtoneManager.getRingtone(activity, ringtoneUri).getTitle(activity));
 
     }
 
@@ -84,6 +87,7 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         TextView repeatDaysTextView;
         SwitchCompat activeCompatSwitch;
         TextView currentRingtoneTextView;
+        ImageView deleteImageView;
 
         public RCViewHolder(View itemView) {
             super(itemView);
@@ -91,6 +95,7 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
             repeatDaysTextView = (TextView) itemView.findViewById(R.id.repeatDaysTextView);
             activeCompatSwitch = (SwitchCompat) itemView.findViewById(R.id.activeCompatSwitch);
             currentRingtoneTextView = (TextView) itemView.findViewById(R.id.currentRingtoneTextView);
+            deleteImageView = (ImageView) itemView.findViewById(R.id.deleteImageView);
         }
     }
 
@@ -106,16 +111,27 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         return builder.toString();
     }
 
+    private List<String> alignDays(List<String> rawDays){
+        List<String> alignedDays = new ArrayList<>();
+        String[] configuredDays = activity.getResources().getStringArray(R.array.days);
+        for(String configuredDay : configuredDays){
+            if(rawDays.contains(configuredDay)){
+                alignedDays.add(configuredDay);
+            }
+        }
+        return alignedDays;
+    }
+
     private String createDaysDescription(Alarm alarm){
-        List<String> days = alarm.getDaysRepeat();
+        List<String> days = alignDays(alarm.getDaysRepeat());
         if(days.isEmpty()){
             String result;
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
             try {
                 if(sdf.parse(alarm.getTime()).before(sdf.parse(sdf.format(new Date())))){
-                    return result = context.getResources().getString(R.string.tommorow);
+                    return result = activity.getResources().getString(R.string.tommorow);
                 } else {
-                    return result = context.getResources().getString(R.string.today);
+                    return result = activity.getResources().getString(R.string.today);
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -123,6 +139,7 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
             }
         } else {
             List<String> result = new ArrayList<>();
+            Log.d(TAG, "DAYS TO PROCESS : " + days);
             for(String day : days){
                 result.add(day.substring(0, 3).toLowerCase() + ".");
             }

@@ -1,12 +1,14 @@
 package com.steveq.qroclock_20.model;
 
+import android.support.annotation.NonNull;
+
 import java.util.List;
 
 /**
  * Created by Adam on 2017-06-19.
  */
 
-public class Alarm {
+public class Alarm implements Comparable{
     private long id;
     private String time;
     private String ringtone;
@@ -64,5 +66,10 @@ public class Alarm {
                 ", active=" + active +
                 ", daysRepeat=" + daysRepeat +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        return this.getTime().compareTo(((Alarm)o).getTime());
     }
 }

@@ -18,6 +18,7 @@ import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -42,6 +43,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         assertEquals(1, testAlarm1.getId());
@@ -53,10 +55,35 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         assertEquals(1, repository.getAlarms().size());
         assertEquals(testAlarm1.getId(), repository.getAlarms().get(0).getId());
+    }
+
+    @Test
+    public void gettingAlarmByTime(){
+        Alarm testAlarm1 = new Alarm();
+        testAlarm1.setTime("test_time");
+        testAlarm1.setRingtone("test_ringtone");
+        testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
+        testAlarm1 = repository.createAlarm(testAlarm1);
+
+        assertEquals(testAlarm1.getId(), repository.getAlarmByTime("test_time").getId());
+    }
+
+    @Test
+    public void notGettingAlarmByTime(){
+        Alarm testAlarm1 = new Alarm();
+        testAlarm1.setTime("test_time");
+        testAlarm1.setRingtone("test_ringtone");
+        testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
+        testAlarm1 = repository.createAlarm(testAlarm1);
+
+        assertEquals(0, repository.getAlarmByTime("abc").getId());
     }
 
     @Test
@@ -65,6 +92,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         assertEquals("test_time", repository.getAlarmById(1).getTime());
@@ -76,6 +104,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         testAlarm1.setRingtone("updated_test_ringtone");
@@ -90,6 +119,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         repository.deleteAlarm(testAlarm1);
@@ -103,6 +133,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
@@ -118,6 +149,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"WRONG"})));
@@ -134,6 +166,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
@@ -149,6 +182,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
@@ -164,6 +198,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));
@@ -179,6 +214,7 @@ public class AlarmRepositoryTest {
         testAlarm1.setTime("test_time");
         testAlarm1.setRingtone("test_ringtone");
         testAlarm1.setActive(true);
+        testAlarm1.setDaysRepeat(Collections.<String>emptyList());
         testAlarm1 = repository.createAlarm(testAlarm1);
 
         List<Long> createdIds = repository.createAlarmDay(testAlarm1, new ArrayList<String>(Arrays.asList(new String[]{"MONDAY", "TUESDAY"})));

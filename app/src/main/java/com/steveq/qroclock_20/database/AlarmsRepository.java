@@ -4,10 +4,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.steveq.qroclock_20.model.Alarm;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.Set;
  */
 
 public class AlarmsRepository implements Repository{
+    private static final String TAG = AlarmsRepository.class.getSimpleName();
     private SQLiteDatabase database;
     private AlarmsSQLiteHelper dbHelper;
     private String[] alarmProjection = {AlarmsContract.AlarmsEntry._ID,
@@ -85,7 +89,44 @@ public class AlarmsRepository implements Repository{
         for(Long id : alarms.keySet()){
             alarms.get(id).setDaysRepeat(getDaysForAlarm(id));
         }
-        return new ArrayList<>(alarms.values());
+        List<Alarm> result = new ArrayList<>(alarms.values());
+        Collections.sort(result);
+        Log.d(TAG, "ALARMS FROM DB : " + result);
+        return result;
+    }
+
+    @Override
+    public Alarm getAlarmByTime(String time) {
+        open();
+
+        Cursor cursor = database.query(
+                AlarmsContract.AlarmsEntry.TABLE_NAME,
+                alarmProjection,
+                AlarmsContract.AlarmsEntry.COLUMN_TIME + " = ?",
+                new String[]{time},
+                null,
+                null,
+                null
+        );
+
+        List<Alarm> alarms = new ArrayList<>();
+        while(cursor.moveToNext()){
+            Alarm alarm = new Alarm();
+            alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmsContract.AlarmsEntry._ID)));
+            alarm.setTime(cursor.getString(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_TIME)));
+            alarm.setRingtone(cursor.getString(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_RINGTONE)));
+            int activeStatus = cursor.getInt(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_ACTIVE));
+            alarm.setActive(activeStatus == 0);
+            alarms.add(alarm);
+        }
+        cursor.close();
+        close();
+        if(alarms.size() > 1){
+            throw new IllegalStateException("Only one alarm should be returned from particular ID");
+        } else if(alarms.isEmpty()){
+            return new Alarm();
+        }
+        return alarms.get(0);
     }
 
     @Override

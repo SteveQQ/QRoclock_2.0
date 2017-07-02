@@ -14,6 +14,7 @@ public interface Repository {
     void close();
     Alarm createAlarm(Alarm alarm);
     List<Alarm> getAlarms();
+    Alarm getAlarmByTime(String time);
     Alarm getAlarmById(long id);
     Boolean updateAlarm(Alarm alarm);
     Boolean deleteAlarm(Alarm alarm);

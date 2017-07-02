@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -24,28 +27,31 @@ import java.util.List;
  * Created by Adam on 2017-06-26.
  */
 
-public class MainActivityPresenterImpl implements MainActivityPresenter, TimePickerDialog.OnTimeSetListener {
+public class MainActivityPresenterImpl implements MainActivityPresenter {
     private static final String TAG = MainActivityPresenterImpl.class.getSimpleName();
+    public static final int GET_RINGTONEPICKER = 10;
     private static MainView mMainView;
-    private RecyclerView.Adapter alarmsAdapter;
-    private Repository repository;
-    private MainActivityPresenterImpl instance;
+    private static RecyclerView.Adapter alarmsAdapter;
+    private static Repository repository;
+    private static MainActivityPresenterImpl instance;
 
     private MainActivityPresenterImpl(MainView mainView) {
         mMainView = mainView;
-        this.repository = new AlarmsRepository((Activity)mainView);
+        repository = new AlarmsRepository((Activity)mainView);
     }
 
-    public static MainActivityPresenterImpl getInstance(){
-        if(this.instance == null){
-            this.instance = new MainActivityPresenterImpl();
+    //according to android documentation it is not considered
+    //bad practice, passing argument to singleton constructor
+    public static MainActivityPresenterImpl getInstance(MainView mainView){
+        if(instance == null){
+            instance = new MainActivityPresenterImpl(mainView);
         }
-        return this.instance;
+        return instance;
     }
 
     @Override
     public void initView() {
-        alarmsAdapter = new AlarmsRecyclerViewAdapter((Context) mMainView, repository.getAlarms());
+        alarmsAdapter = new AlarmsRecyclerViewAdapter((Activity) mMainView, repository.getAlarms());
         Log.d(TAG, repository.getAlarms().toString());
         mMainView.configRecyclerView(alarmsAdapter);
         if(alarmsAdapter.getItemCount() > 0){
@@ -57,54 +63,112 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, TimePic
     }
 
     @Override
-    public void showAddAlarmDialog() {
-        mMainView.showAddAlarmDialog();
+    public void showAddAlarmDialog(Alarm initAlarm) {
+        mMainView.showAddAlarmDialog(initAlarm);
     }
 
     @Override
-    public void showRingtoneDialog() {
-        mMainView.showDaysDialog();
+    public void collectDays(Alarm alarm, DaysListener listener) {
+        repository.updateAlarmDays(alarm, listener.mChosenDays);
+
+        reloadDataInAdapter();
     }
 
     @Override
-    public void collectDays() {
+    public void collectRingtone(String path) {
+        RowClickListener.lastClickedAlarm.setRingtone(path);
+        repository.updateAlarm(RowClickListener.lastClickedAlarm);
+        reloadDataInAdapter();
     }
 
-    @Override
-    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        Alarm alarm = new Alarm();
-        alarm.setTime(String.valueOf(hourOfDay) + ":" + String.valueOf(minute));
-        alarm.setRingtone(((Context) mMainView).getResources().getString(R.string.default_ringtone_uri));
-        alarm.setDaysRepeat(Collections.<String>emptyList());
-        alarm.setActive(true);
-        repository.createAlarm(alarm);
+    private static void reloadDataInAdapter(){
         ((AlarmsRecyclerViewAdapter)alarmsAdapter).setPayload(repository.getAlarms());
         alarmsAdapter.notifyDataSetChanged();
     }
 
-    public static class RowClickListener implements View.OnClickListener{
+    public static class TimeListener implements TimePickerDialog.OnTimeSetListener{
+        private Alarm alarm;
 
-        private Alarm selectedAlarm;
-
-        public Alarm getSelectedAlarm() {
-            return selectedAlarm;
+        public TimeListener(Alarm a){
+            alarm = a;
         }
 
-        public void setSelectedAlarm(Alarm selectedAlarm) {
-            this.selectedAlarm = selectedAlarm;
+        public Alarm getAlarm() {
+            return alarm;
+        }
+
+        public void setAlarm(Alarm alarm) {
+            this.alarm = alarm;
+        }
+
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+            String timeFormat = String.format("%02d", hourOfDay) + ":" + String.format("%02d", minute);
+            Alarm alarmCheck = repository.getAlarmByTime(timeFormat);
+            Log.d(TAG, "ALARM CHECK : " + alarm);
+            if(alarm.getId() == 0 && alarmCheck.getId() == 0){
+                alarm.setTime(timeFormat);
+                alarm.setRingtone(((Context) mMainView).getResources().getString(R.string.default_ringtone_uri));
+                alarm.setDaysRepeat(Collections.<String>emptyList());
+                alarm.setActive(true);
+                alarm = repository.createAlarm(alarm);
+            } else if(alarm.getId() != 0){
+                alarm.setTime(timeFormat);
+                repository.updateAlarm(alarm);
+            } else if(alarmCheck.getId() != 0){
+                if(!alarmCheck.getActive()){
+                    alarmCheck.setActive(true);
+                    repository.updateAlarm(alarmCheck);
+                }
+            }
+            ((AlarmsRecyclerViewAdapter)alarmsAdapter).setPayload(repository.getAlarms());
+            alarmsAdapter.notifyDataSetChanged();
+            if(alarm.getId() > 0){
+                mMainView.showRecyclerView();
+            }
+        }
+
+    }
+
+    //inner class bound to specific instance
+    public static class RowClickListener implements View.OnClickListener{
+        private static Alarm lastClickedAlarm;
+        private Alarm alarm;
+
+        public RowClickListener(){
+        }
+
+        public Alarm getAlarm() {
+            return alarm;
+        }
+
+        public void setAlarm(Alarm alarm) {
+            this.alarm = alarm;
         }
 
         @Override
         public void onClick(View v) {
+            Log.d(TAG, "selected alarm : " + alarm);
+            lastClickedAlarm = alarm;
             switch (v.getId()){
                 case R.id.alarmTimeTextView:
+                    mMainView.showAddAlarmDialog(alarm);
                     break;
                 case R.id.currentRingtoneTextView:
+                    Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
+                    intent.putExtra("HI", "hello");
+                    ((Activity)mMainView).startActivityForResult(intent, GET_RINGTONEPICKER);
                     break;
                 case R.id.repeatDaysTextView:
-                    mMainView.showDaysDialog();
+                    mMainView.showDaysDialog(alarm);
                     break;
                 case R.id.activeCompatSwitch:
+                    alarm.setActive(!alarm.getActive());
+                    repository.updateAlarm(alarm);
+                    break;
+                case R.id.deleteImageView:
+                    repository.deleteAlarm(alarm);
+                    reloadDataInAdapter();
                     break;
                 default:
                     break;
@@ -112,9 +176,10 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, TimePic
         }
     }
 
+    //inner class bound to specific instance
     public static class DaysListener implements DialogInterface.OnMultiChoiceClickListener{
-        private static List<String> mChosenDays;
-        private final List<String> days = new ArrayList<String>(Arrays.asList(((Context) mMainView).getResources().getStringArray(R.array.days)));
+        private List<String> mChosenDays;
+        private List<String> days = new ArrayList<String>(Arrays.asList(((Context) mMainView).getResources().getStringArray(R.array.days)));
 
         public DaysListener(){
             mChosenDays = new ArrayList<>();
@@ -124,17 +189,19 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, TimePic
             return mChosenDays;
         }
 
-        public void setChosenDays(List<String> chosenDays) {
-            chosenDays = chosenDays;
+        public void setChosenDays(List<String> days) {
+            mChosenDays = days;
         }
 
         @Override
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+            Log.d(TAG, "CHOSEN DAY INDEX : " + which);
             if(isChecked){
                 mChosenDays.add(days.get(which));
             } else if (mChosenDays.contains(days.get(which))){
-                mChosenDays.remove(which);
+                mChosenDays.remove(mChosenDays.indexOf(days.get(which)));
             }
+            Log.d(TAG, "CURRENT CHOSEN DAYS : " + mChosenDays);
         }
     }
 

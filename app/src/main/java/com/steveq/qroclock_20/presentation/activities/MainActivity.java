@@ -1,12 +1,11 @@
 package com.steveq.qroclock_20.presentation.activities;
 
 import android.app.AlertDialog;
-import android.app.FragmentManager;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.content.res.Resources;
-import android.icu.util.Calendar;
+import android.content.Intent;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -18,11 +17,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.steveq.qroclock_20.R;
-import com.steveq.qroclock_20.presentation.dialogs.AddAlarmDialog;
+import com.steveq.qroclock_20.model.Alarm;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MainView {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -36,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private final View.OnClickListener fabClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            presenter.showAddAlarmDialog();
+            presenter.showAddAlarmDialog(new Alarm());
         }
     };
 
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
         alarmFab.setOnClickListener(fabClick);
 
-        presenter = new MainActivityPresenterImpl(this);
+        presenter = MainActivityPresenterImpl.getInstance(this);
         presenter.initView();
     }
 
@@ -80,23 +79,50 @@ public class MainActivity extends AppCompatActivity implements MainView {
     }
 
     @Override
-    public void showAddAlarmDialog() {
+    public void showAddAlarmDialog(Alarm initAlarm) {
         SimpleDateFormat sdfHours = new SimpleDateFormat("HH");
         SimpleDateFormat sdfMinutes = new SimpleDateFormat("mm");
-        TimePickerDialog tmd = new TimePickerDialog(this, (TimePickerDialog.OnTimeSetListener)presenter, Integer.valueOf(sdfHours.format(new Date())) + 1, Integer.valueOf(sdfMinutes.format(new Date())), true);
+        TimePickerDialog.OnTimeSetListener listener = new MainActivityPresenterImpl.TimeListener(initAlarm);
+        TimePickerDialog tmd = new TimePickerDialog(this, listener, Integer.valueOf(sdfHours.format(new Date())) + 1, Integer.valueOf(sdfMinutes.format(new Date())), true);
         tmd.show();
     }
 
     @Override
-    public void showDaysDialog() {
-        MainActivityPresenterImpl.DaysListener listener = new MainActivityPresenterImpl.DaysListener();
+    public void showDaysDialog(final Alarm alarm) {
+        List<String> daysToCheck = alarm.getDaysRepeat();
+        String[] configuredDays = getResources().getStringArray(R.array.days);
+        boolean[] checkedItems = new boolean[configuredDays.length];
+        int i = 0;
+        for(String day : configuredDays){
+            if(daysToCheck.contains(day)){
+                checkedItems[i] = true;
+            } else {
+                checkedItems[i] = false;
+            }
+            i++;
+
+        }
+        final MainActivityPresenterImpl.DaysListener listener = new MainActivityPresenterImpl.DaysListener();
+        Log.d(TAG, "DAYS TO CHECK : " + daysToCheck);
+        listener.setChosenDays(daysToCheck);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getResources().getString(R.string.ringtone))
-                .setMultiChoiceItems(getResources().getStringArray(R.array.days), null, listener)
-                .setPositiveButton("OK", presenter.collectDays())
+                .setMultiChoiceItems(getResources().getStringArray(R.array.days), checkedItems, listener)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        presenter.collectDays(alarm, listener);
+                    }
+                })
                 .setNegativeButton("CANCEL", null);
         builder.create().show();
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == MainActivityPresenterImpl.GET_RINGTONEPICKER && resultCode == RESULT_OK){
+            Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+            presenter.collectRingtone(uri.getPath());
+        }
+    }
 }
