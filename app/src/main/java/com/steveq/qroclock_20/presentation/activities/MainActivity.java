@@ -13,16 +13,20 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
 import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.model.Alarm;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.Inflater;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -32,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private TextView emptyTextView;
     private FloatingActionButton alarmFab;
     private MainActivityPresenter presenter;
+    private Toolbar mainToolbar;
 
     private static final String ADD_DIALOG = "add_dialog";
 
@@ -54,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         alarmsRecyclerView = (RecyclerView) findViewById(R.id.alarmsRecyclerView);
         emptyTextView = (TextView) findViewById(R.id.emptyRecyclerViewReplacement);
         alarmFab = (FloatingActionButton) findViewById(R.id.addAlarmFab);
+        mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
 
         alarmFab.setOnClickListener(fabClick);
 
@@ -66,6 +72,19 @@ public class MainActivity extends AppCompatActivity implements MainView {
         alarmsRecyclerView.setHasFixedSize(true);
         alarmsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         alarmsRecyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void configToolbar(){
+        TextView title = (TextView) mainToolbar.findViewById(R.id.toolbarTitleTextView);
+        setSupportActionBar(mainToolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
     }
 
     @Override

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">QRoclock_2.0</string>
+    <string name="app_name">QRoclock</string>
     <string-array name="days">
         <item>MONDAY</item>
         <item>TUESDAY</item>

@@ -13,7 +13,8 @@ public class QRoclockApplication extends Application {
     public void onCreate() {
         super.onCreate();
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                                        .setDefaultFontPath("fonts/Quicksand-Regular.ttf")
+                                        .setDefaultFontPath("fonts/SourceSansPro-Regular.ttf")
+                                        .setFontAttrId(R.attr.fontPath)
                                         .build()
         );
     }

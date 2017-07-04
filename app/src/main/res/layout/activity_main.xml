@@ -5,7 +5,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.steveq.qroclock_20.presentation.activities.MainActivity">
+    tools:context="com.steveq.qroclock_20.presentation.activities.MainActivity"
+    android:orientation="vertical">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/alarmsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:padding="4dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/mainToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:elevation="4dp">
+            <TextView
+                android:id="@+id/toolbarTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@string/app_name"
+                android:textSize="24sp"
+                fontPath="fonts/SourceSansPro-Bold.ttf"/>
+        </android.support.v7.widget.Toolbar>
+    </android.support.design.widget.AppBarLayout>
 
     <TextView
         android:id="@+id/emptyRecyclerViewReplacement"
@@ -13,14 +40,8 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:visibility="gone"
-        android:text="no alarms"/>
+        android:text="no alarms" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/alarmsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:padding="4dp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addAlarmFab"

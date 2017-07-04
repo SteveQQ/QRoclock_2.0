@@ -6,7 +6,7 @@
     <color name="material_orange_A700">#FF6D00</color>
     <color name="material_grey_300_">#E0E0E0</color>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/material_teal_600</item>
         <item name="colorPrimaryDark">@color/material_teal_800</item>

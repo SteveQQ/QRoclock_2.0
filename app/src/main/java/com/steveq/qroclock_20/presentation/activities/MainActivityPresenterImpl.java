@@ -59,7 +59,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
         } else if(alarmsAdapter.getItemCount() == 0){
             mMainView.hideRecyclerView();
         }
-
+        mMainView.configToolbar();
     }
 
     @Override

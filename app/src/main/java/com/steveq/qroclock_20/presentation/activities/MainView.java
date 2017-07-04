@@ -10,6 +10,7 @@ import com.steveq.qroclock_20.model.Alarm;
 
 public interface MainView {
     void configRecyclerView(RecyclerView.Adapter adapter);
+    void configToolbar();
     void showRecyclerView();
     void hideRecyclerView();
     void showAddAlarmDialog(Alarm initAlarm);
