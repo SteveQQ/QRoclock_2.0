@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private FloatingActionButton alarmFab;
     private MainActivityPresenter presenter;
     private Toolbar mainToolbar;
+    private CoordinatorLayout rootView;
 
     private static final String ADD_DIALOG = "add_dialog";
 
@@ -63,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
         emptyTextView = (TextView) findViewById(R.id.emptyRecyclerViewReplacement);
         alarmFab = (FloatingActionButton) findViewById(R.id.addAlarmFab);
         mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
+        rootView = (CoordinatorLayout) findViewById(R.id.mainCoordinatorLayout);
 
         alarmFab.setOnClickListener(fabClick);
 
@@ -151,6 +155,18 @@ public class MainActivity extends AppCompatActivity implements MainView {
                 .setNegativeButton("CANCEL", null);
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    @Override
+    public void showSnackbar() {
+        Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.delete_message), BaseTransientBottomBar.LENGTH_INDEFINITE)
+                                    .setAction(getResources().getString(R.string.undo), new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            presenter.restoreAlarm();
+                                        }
+                                    });
+        snackbar.show();
     }
 
     @Override

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -35,6 +36,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
     private static RecyclerView.Adapter alarmsAdapter;
     private static Repository repository;
     private static MainActivityPresenterImpl instance;
+    private Alarm deletedAlarm;
 
     private MainActivityPresenterImpl(MainView mainView) {
         mMainView = mainView;
@@ -82,6 +84,13 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
         reloadDataInAdapter();
     }
 
+    @Override
+    public void restoreAlarm() {
+        Log.d(TAG, "DELETED ALARM : " + deletedAlarm);
+        deletedAlarm = repository.createAlarm(deletedAlarm);
+        reloadDataInAdapter();
+    }
+
     private static void reloadDataInAdapter(){
         ((AlarmsRecyclerViewAdapter)alarmsAdapter).setPayload(repository.getAlarms());
         alarmsAdapter.notifyDataSetChanged();
@@ -89,8 +98,9 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
 
     @Override
     public void onItemDismiss(int position) {
-        repository.deleteAlarm(((AlarmsRecyclerViewAdapter)alarmsAdapter).getPayload().get(position));
+        deletedAlarm = repository.deleteAlarm(((AlarmsRecyclerViewAdapter)alarmsAdapter).getPayload().get(position));
         reloadDataInAdapter();
+        mMainView.showSnackbar();
     }
 
     public static class TimeListener implements TimePickerDialog.OnTimeSetListener{

@@ -184,11 +184,17 @@ public class AlarmsRepository implements Repository{
     }
 
     @Override
-    public Boolean deleteAlarm(Alarm alarm) {
+    public Alarm deleteAlarm(Alarm alarm) {
+        Log.d(TAG, "DAYS REPEAT IS EMPTY ? : " + alarm.getDaysRepeat());
+        if(!alarm.getDaysRepeat().isEmpty() && !deleteAlarmDays(alarm.getId())) return new Alarm();
         open();
         int affectedRows = database.delete(AlarmsContract.AlarmsEntry.TABLE_NAME, AlarmsContract.AlarmsEntry._ID + "=?", new String[]{String.valueOf(alarm.getId())});
         close();
-        return affectedRows > 1;
+        if(affectedRows >= 1){
+            return alarm;
+        } else {
+            return new Alarm();
+        }
     }
 
     @Override

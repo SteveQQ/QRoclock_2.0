@@ -11,4 +11,5 @@ public interface MainActivityPresenter {
     void showAddAlarmDialog(Alarm initAlarm);
     void collectDays(Alarm alarm, MainActivityPresenterImpl.DaysListener listener);
     void collectRingtone(String path);
+    void restoreAlarm();
 }

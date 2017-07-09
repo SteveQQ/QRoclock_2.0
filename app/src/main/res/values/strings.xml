@@ -13,4 +13,6 @@
     <string name="today">Today</string>
     <string name="tommorow">Tomorrow</string>
     <string name="ringtone">Ringtone</string>
+    <string name="delete_message">Alarm Deleted</string>
+    <string name="undo">UNDO</string>
 </resources>

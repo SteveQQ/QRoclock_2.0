@@ -17,7 +17,7 @@ public interface Repository {
     Alarm getAlarmByTime(String time);
     Alarm getAlarmById(long id);
     Boolean updateAlarm(Alarm alarm);
-    Boolean deleteAlarm(Alarm alarm);
+    Alarm deleteAlarm(Alarm alarm);
     List<Long> createAlarmDay(Alarm alarm, List<String> days);
     List<String> getDaysForAlarm(long alarmId);
     void updateAlarmDays(Alarm alarm, List<String> days);
