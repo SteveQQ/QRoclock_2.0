@@ -30,7 +30,8 @@
                 android:layout_gravity="start"
                 android:text="@string/app_name"
                 android:textSize="24sp"
-                fontPath="fonts/SourceSansPro-Bold.ttf"/>
+                fontPath="fonts/SourceSansPro-Bold.ttf"
+                android:textColor="@color/material_teal_800"/>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 

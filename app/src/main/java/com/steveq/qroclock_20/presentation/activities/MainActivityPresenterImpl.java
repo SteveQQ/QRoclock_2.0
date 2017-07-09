@@ -17,6 +17,7 @@ import com.steveq.qroclock_20.database.AlarmsRepository;
 import com.steveq.qroclock_20.database.Repository;
 import com.steveq.qroclock_20.model.Alarm;
 import com.steveq.qroclock_20.presentation.adapters.AlarmsRecyclerViewAdapter;
+import com.steveq.qroclock_20.presentation.adapters.ItemTouchHelperListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ import java.util.List;
  * Created by Adam on 2017-06-26.
  */
 
-public class MainActivityPresenterImpl implements MainActivityPresenter {
+public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTouchHelperListener {
     private static final String TAG = MainActivityPresenterImpl.class.getSimpleName();
     public static final int GET_RINGTONEPICKER = 10;
     private static MainView mMainView;
@@ -84,6 +85,12 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
     private static void reloadDataInAdapter(){
         ((AlarmsRecyclerViewAdapter)alarmsAdapter).setPayload(repository.getAlarms());
         alarmsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onItemDismiss(int position) {
+        repository.deleteAlarm(((AlarmsRecyclerViewAdapter)alarmsAdapter).getPayload().get(position));
+        reloadDataInAdapter();
     }
 
     public static class TimeListener implements TimePickerDialog.OnTimeSetListener{
@@ -165,10 +172,6 @@ public class MainActivityPresenterImpl implements MainActivityPresenter {
                 case R.id.activeCompatSwitch:
                     alarm.setActive(!alarm.getActive());
                     repository.updateAlarm(alarm);
-                    break;
-                case R.id.deleteImageView:
-                    repository.deleteAlarm(alarm);
-                    reloadDataInAdapter();
                     break;
                 default:
                     break;

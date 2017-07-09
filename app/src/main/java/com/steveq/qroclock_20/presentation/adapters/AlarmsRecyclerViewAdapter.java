@@ -1,7 +1,6 @@
 package com.steveq.qroclock_20.presentation.adapters;
 
 import android.app.Activity;
-import android.content.Context;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -10,13 +9,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.model.Alarm;
 import com.steveq.qroclock_20.presentation.activities.MainActivityPresenterImpl;
-import com.steveq.qroclock_20.presentation.activities.MainView;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -66,7 +63,6 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         holder.repeatDaysTextView.setOnClickListener(listener);
         holder.activeCompatSwitch.setOnClickListener(listener);
         holder.currentRingtoneTextView.setOnClickListener(listener);
-        holder.deleteImageView.setOnClickListener(listener);
         listener.setAlarm(payload.get(position));
         Log.d(TAG, "content:/" + payload.get(position).getRingtone());
 
@@ -87,7 +83,6 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
         TextView repeatDaysTextView;
         SwitchCompat activeCompatSwitch;
         TextView currentRingtoneTextView;
-        ImageView deleteImageView;
 
         public RCViewHolder(View itemView) {
             super(itemView);
@@ -95,7 +90,6 @@ public class AlarmsRecyclerViewAdapter extends RecyclerView.Adapter<AlarmsRecycl
             repeatDaysTextView = (TextView) itemView.findViewById(R.id.repeatDaysTextView);
             activeCompatSwitch = (SwitchCompat) itemView.findViewById(R.id.activeCompatSwitch);
             currentRingtoneTextView = (TextView) itemView.findViewById(R.id.currentRingtoneTextView);
-            deleteImageView = (ImageView) itemView.findViewById(R.id.deleteImageView);
         }
     }
 

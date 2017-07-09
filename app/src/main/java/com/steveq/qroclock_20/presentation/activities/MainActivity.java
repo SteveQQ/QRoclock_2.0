@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -21,6 +22,8 @@ import android.widget.TextView;
 
 import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.model.Alarm;
+import com.steveq.qroclock_20.presentation.adapters.AlarmsRecyclerViewAdapter;
+import com.steveq.qroclock_20.presentation.adapters.MyItemTouchCallback;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -72,6 +75,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
         alarmsRecyclerView.setHasFixedSize(true);
         alarmsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         alarmsRecyclerView.setAdapter(adapter);
+        ItemTouchHelper.Callback callback = new MyItemTouchCallback(presenter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(alarmsRecyclerView);
     }
 
     @Override

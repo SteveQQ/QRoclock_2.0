@@ -64,11 +64,5 @@
             android:layout_height="wrap_content"
             tools:text="mon., tue., wed., thur., fri., sat., sun.,"
             android:textSize="24sp"/>
-
-        <ImageView
-            android:id="@+id/deleteImageView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            app:srcCompat="@drawable/bin_vec" />
     </LinearLayout>
 </android.support.v7.widget.CardView>
