@@ -116,7 +116,7 @@ public class AlarmsRepository implements Repository{
             alarm.setTime(cursor.getString(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_TIME)));
             alarm.setRingtone(cursor.getString(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_RINGTONE)));
             int activeStatus = cursor.getInt(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_ACTIVE));
-            alarm.setActive(activeStatus == 0);
+            alarm.setActive(activeStatus != 0);
             alarms.add(alarm);
         }
         cursor.close();

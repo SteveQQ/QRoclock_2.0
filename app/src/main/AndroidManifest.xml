@@ -12,10 +12,15 @@
         <activity android:name=".presentation.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <service android:name=".service.StartAlarmService">
+            <intent-filter>
+                <action android:name="om.steveq.qroclock_20.START_ALARM_SERVICEc"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

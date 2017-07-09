@@ -19,6 +19,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,6 +27,7 @@ import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.model.Alarm;
 import com.steveq.qroclock_20.presentation.adapters.AlarmsRecyclerViewAdapter;
 import com.steveq.qroclock_20.presentation.adapters.MyItemTouchCallback;
+import com.steveq.qroclock_20.service.StartAlarmService;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
@@ -95,6 +97,18 @@ public class MainActivity extends AppCompatActivity implements MainView {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.scannerItem:
+                Intent intent = new Intent(this, StartAlarmService.class);
+                stopService(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override

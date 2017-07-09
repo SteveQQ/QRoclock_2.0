@@ -15,4 +15,6 @@
     <string name="ringtone">Ringtone</string>
     <string name="delete_message">Alarm Deleted</string>
     <string name="undo">UNDO</string>
+    <string name="start_service_action">com.steveq.qroclock_20.START_ALARM_SERVICE</string>
+    <string name="active_alarms">You have active alarms</string>
 </resources>

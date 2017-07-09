@@ -19,6 +19,7 @@ import com.steveq.qroclock_20.database.Repository;
 import com.steveq.qroclock_20.model.Alarm;
 import com.steveq.qroclock_20.presentation.adapters.AlarmsRecyclerViewAdapter;
 import com.steveq.qroclock_20.presentation.adapters.ItemTouchHelperListener;
+import com.steveq.qroclock_20.service.StartAlarmService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,7 +104,15 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
         mMainView.showSnackbar();
     }
 
+    private static void startAlarmService(){
+        Intent intent = new Intent((Context)mMainView, StartAlarmService.class);
+        intent.setAction(((Context) mMainView).getResources().getString(R.string.start_service_action));
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        ((Context) mMainView).startService(intent);
+    }
+
     public static class TimeListener implements TimePickerDialog.OnTimeSetListener{
+        //alarm which was clicked when editing row or null object alarm when cerating new alarm
         private Alarm alarm;
 
         public TimeListener(Alarm a){
@@ -121,6 +130,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             String timeFormat = String.format("%02d", hourOfDay) + ":" + String.format("%02d", minute);
+            //retrieves alarm object for set time
             Alarm alarmCheck = repository.getAlarmByTime(timeFormat);
             Log.d(TAG, "ALARM CHECK : " + alarm);
             if(alarm.getId() == 0 && alarmCheck.getId() == 0){
@@ -129,14 +139,10 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
                 alarm.setDaysRepeat(Collections.<String>emptyList());
                 alarm.setActive(true);
                 alarm = repository.createAlarm(alarm);
+                startAlarmService();
             } else if(alarm.getId() != 0){
                 alarm.setTime(timeFormat);
                 repository.updateAlarm(alarm);
-            } else if(alarmCheck.getId() != 0){
-                if(!alarmCheck.getActive()){
-                    alarmCheck.setActive(true);
-                    repository.updateAlarm(alarmCheck);
-                }
             }
             ((AlarmsRecyclerViewAdapter)alarmsAdapter).setPayload(repository.getAlarms());
             alarmsAdapter.notifyDataSetChanged();
@@ -173,7 +179,6 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
                     break;
                 case R.id.currentRingtoneTextView:
                     Intent intent = new Intent(RingtoneManager.ACTION_RINGTONE_PICKER);
-                    intent.putExtra("HI", "hello");
                     ((Activity)mMainView).startActivityForResult(intent, GET_RINGTONEPICKER);
                     break;
                 case R.id.repeatDaysTextView:
@@ -182,10 +187,12 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
                 case R.id.activeCompatSwitch:
                     alarm.setActive(!alarm.getActive());
                     repository.updateAlarm(alarm);
+                    if(alarm.getActive()) startAlarmService();
                     break;
                 default:
                     break;
             }
+            reloadDataInAdapter();
         }
     }
 
