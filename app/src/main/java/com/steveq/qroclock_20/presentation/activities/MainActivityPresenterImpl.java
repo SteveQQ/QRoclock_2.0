@@ -19,6 +19,7 @@ import com.steveq.qroclock_20.database.Repository;
 import com.steveq.qroclock_20.model.Alarm;
 import com.steveq.qroclock_20.presentation.adapters.AlarmsRecyclerViewAdapter;
 import com.steveq.qroclock_20.presentation.adapters.ItemTouchHelperListener;
+import com.steveq.qroclock_20.service.AlarmCreator;
 import com.steveq.qroclock_20.service.StartAlarmService;
 
 import java.util.ArrayList;
@@ -38,10 +39,12 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
     private static Repository repository;
     private static MainActivityPresenterImpl instance;
     private Alarm deletedAlarm;
+    private static AlarmCreator alarmCreator;
 
     private MainActivityPresenterImpl(MainView mainView) {
         mMainView = mainView;
         repository = new AlarmsRepository((Activity)mainView);
+        alarmCreator = new AlarmCreator((Context)mMainView);
     }
 
     //according to android documentation it is not considered
@@ -104,11 +107,8 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
         mMainView.showSnackbar();
     }
 
-    private static void startAlarmService(){
-        Intent intent = new Intent((Context)mMainView, StartAlarmService.class);
-        intent.setAction(((Context) mMainView).getResources().getString(R.string.start_service_action));
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        ((Context) mMainView).startService(intent);
+    private static void startAlarmService(Alarm alarm){
+        alarmCreator.registerAlarm(alarm);
     }
 
     public static class TimeListener implements TimePickerDialog.OnTimeSetListener{
@@ -139,7 +139,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
                 alarm.setDaysRepeat(Collections.<String>emptyList());
                 alarm.setActive(true);
                 alarm = repository.createAlarm(alarm);
-                startAlarmService();
+                startAlarmService(alarm);
             } else if(alarm.getId() != 0){
                 alarm.setTime(timeFormat);
                 repository.updateAlarm(alarm);
@@ -187,7 +187,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
                 case R.id.activeCompatSwitch:
                     alarm.setActive(!alarm.getActive());
                     repository.updateAlarm(alarm);
-                    if(alarm.getActive()) startAlarmService();
+                    if(alarm.getActive()) startAlarmService(alarm);
                     break;
                 default:
                     break;
