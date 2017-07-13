@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.icu.util.Calendar;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -19,6 +20,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.steveq.qroclock_20.R;
+import com.steveq.qroclock_20.model.Alarm;
+
+import java.util.Arrays;
 
 /**
  * Created by Adam on 2017-07-09.
@@ -34,10 +38,21 @@ public class StartAlarmService extends Service {
     public class AlarmBasic{
         private Ringtone ringtone;
         private Long alarmId;
+        private String[] daysRepeat;
 
-        public AlarmBasic(Ringtone ringtone, Long alarmId) {
+        public AlarmBasic(Ringtone ringtone, Long alarmId, String[] daysRepeat) {
             this.ringtone = ringtone;
             this.alarmId = alarmId;
+            this.daysRepeat = daysRepeat;
+        }
+
+        @Override
+        public String toString() {
+            return "AlarmBasic{" +
+                    "ringtone=" + ringtone +
+                    ", alarmId=" + alarmId +
+                    ", daysRepeat=" + Arrays.toString(daysRepeat) +
+                    '}';
         }
     }
 
@@ -73,6 +88,7 @@ public class StartAlarmService extends Service {
                         audioManager.setStreamVolume(AudioManager.STREAM_RING, audioManager.getStreamMaxVolume(AudioManager.STREAM_RING), 0);
                     }
                 }
+                alarmBasic.ringtone.stop();
                 sendAlarmBackBroadcast();
                 stopSelf();
             }
@@ -89,11 +105,43 @@ public class StartAlarmService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if(getResources().getString(R.string.start_service_action).equals(intent.getAction())){
-            alarmBasic = new AlarmBasic(RingtoneManager.getRingtone(this, Uri.parse(intent.getStringExtra(AlarmCreator.RINGTONE_PLAY))),
-                                        intent.getLongExtra(AlarmCreator.ALARM_ID, -1));
-            playRingtone();
+            alarmBasic = new AlarmBasic(RingtoneManager.getRingtone(this, Uri.parse("content://media" + intent.getStringExtra(AlarmCreator.RINGTONE_PLAY))),
+                                        intent.getLongExtra(AlarmCreator.ALARM_ID, -1),
+                                        intent.getStringArrayExtra(AlarmCreator.DAYS_REPEAT));
+            Log.d(TAG, "ALARM BASIC : " + alarmBasic);
+            Log.d(TAG, "ALARM BASIC RINGTONE : " + intent.getStringExtra(AlarmCreator.RINGTONE_PLAY));
+            if(alarmBasic.daysRepeat.length == 0){
+                playRingtone();
+            } else if(currentDayMatch(alarmBasic.daysRepeat)){
+                playRingtone();
+            }
         }
         return Service.START_STICKY;
+    }
+
+    private boolean currentDayMatch(String[] daysRepeat) {
+        Calendar calendar = Calendar.getInstance();
+        int dayNum = calendar.get(Calendar.DAY_OF_WEEK);
+        for(String day : daysRepeat){
+            if(getDayNum(day) == dayNum){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int getDayNum(String dayString){
+        String[] configuredDatys = getResources().getStringArray(R.array.days);
+        int counter = 1;
+        for(String day : configuredDatys){
+            if(dayString.equals(day)){
+                break;
+            }
+            counter++;
+        }
+        counter++;
+        if(counter==8) counter = 1;
+        return counter;
     }
 
     @Nullable

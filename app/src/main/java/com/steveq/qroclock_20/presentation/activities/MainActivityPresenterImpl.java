@@ -94,8 +94,10 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
 
     @Override
     public void collectDays(Alarm alarm, DaysListener listener) {
+        RowClickListener.lastClickedAlarm.setDaysRepeat(listener.mChosenDays);
         repository.updateAlarmDays(alarm, listener.mChosenDays);
 
+        startAlarmService(RowClickListener.lastClickedAlarm);
         reloadDataInAdapter();
     }
 
@@ -104,6 +106,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
         RowClickListener.lastClickedAlarm.setRingtone(path);
         repository.updateAlarm(RowClickListener.lastClickedAlarm);
         reloadDataInAdapter();
+        startAlarmService(RowClickListener.lastClickedAlarm);
     }
 
     @Override
@@ -190,6 +193,7 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
             } else if(alarm.getId() != 0){
                 alarm.setTime(timeFormat);
                 repository.updateAlarm(alarm);
+                startAlarmService(alarm);
             }
             ((AlarmsRecyclerViewAdapter)alarmsAdapter).setPayload(repository.getAlarms());
             alarmsAdapter.notifyDataSetChanged();

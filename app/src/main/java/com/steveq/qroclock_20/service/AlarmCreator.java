@@ -26,6 +26,7 @@ public class AlarmCreator {
     private static final String TAG = AlarmCreator.class.getSimpleName();
     public static final String RINGTONE_PLAY = "ringtone_to_play";
     public static final String ALARM_ID = "alarm_id";
+    public static final String DAYS_REPEAT = "days_repeat";
     private AlarmManager alarmManager;
     private Map<Alarm, PendingIntent> activeIntents;
     private PendingIntent pendingIntent;
@@ -51,10 +52,21 @@ public class AlarmCreator {
         intent.setAction(context.getResources().getString(R.string.start_service_action));
         intent.putExtra(RINGTONE_PLAY, alarm.getRingtone());
         intent.putExtra(ALARM_ID, alarm.getId());
-        activeIntents.put(alarm, PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
-        Log.d(TAG, " : TIMESTAMP : " + timeStamp);
+        intent.putExtra(DAYS_REPEAT, alarm.getDaysRepeat().toArray(new String[]{}));
 
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeStamp, AlarmManager.INTERVAL_DAY, activeIntents.get(alarm));
+        Log.d(TAG, " : previous intent : " + activeIntents.get(alarm));
+
+        unregisterAlarm(alarm);
+
+        activeIntents.put(alarm, PendingIntent.getService(context, (int)alarm.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT));
+        Log.d(TAG, " : TIMESTAMP : " + timeStamp);
+        Log.d(TAG, " : current intent : " + activeIntents.get(alarm));
+
+        if(alarm.getDaysRepeat().isEmpty()){
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeStamp, activeIntents.get(alarm));
+        } else {
+            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeStamp, AlarmManager.INTERVAL_DAY, activeIntents.get(alarm));
+        }
     }
 
     public void unregisterAlarm(Alarm alarm){
