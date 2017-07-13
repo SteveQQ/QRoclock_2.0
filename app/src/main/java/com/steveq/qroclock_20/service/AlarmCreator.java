@@ -12,7 +12,11 @@ import com.steveq.qroclock_20.model.Alarm;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Adam on 2017-07-10.
@@ -20,14 +24,25 @@ import java.util.Date;
 
 public class AlarmCreator {
     private static final String TAG = AlarmCreator.class.getSimpleName();
-    public static final String RINGTONE_PLAY = "ringtone to play";
+    public static final String RINGTONE_PLAY = "ringtone_to_play";
+    public static final String ALARM_ID = "alarm_id";
     private AlarmManager alarmManager;
+    private Map<Alarm, PendingIntent> activeIntents;
     private PendingIntent pendingIntent;
     private Context context;
 
     public AlarmCreator(Context context){
         this.context = context;
         alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        activeIntents = new HashMap<>();
+    }
+
+    public Map<Alarm, PendingIntent> getActiveIntents() {
+        return activeIntents;
+    }
+
+    public void setActiveIntents(Map<Alarm, PendingIntent> activeIntents) {
+        this.activeIntents = activeIntents;
     }
 
     public void registerAlarm(Alarm alarm){
@@ -35,31 +50,52 @@ public class AlarmCreator {
         Intent intent = new Intent(context, StartAlarmService.class);
         intent.setAction(context.getResources().getString(R.string.start_service_action));
         intent.putExtra(RINGTONE_PLAY, alarm.getRingtone());
-        pendingIntent = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
+        intent.putExtra(ALARM_ID, alarm.getId());
+        activeIntents.put(alarm, PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT));
         Log.d(TAG, " : TIMESTAMP : " + timeStamp);
 
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeStamp, AlarmManager.INTERVAL_DAY, pendingIntent);
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeStamp, AlarmManager.INTERVAL_DAY, activeIntents.get(alarm));
+    }
+
+    public void unregisterAlarm(Alarm alarm){
+        if(activeIntents.containsKey(alarm)){
+            alarmManager.cancel(activeIntents.get(alarm));
+            activeIntents.remove(alarm);
+        }
     }
 
     private long getTimeInMillis(String timeString){
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        Date parsedTime = null;
-        try {
-            parsedTime = sdf.parse(timeString);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        String[] subTimes = timeString.split(":");
+
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(parsedTime);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        Log.d(TAG, " : HOUR SET : " + String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)));
-        Log.d(TAG, " : MINUTe SET : " + String.valueOf(calendar.get(Calendar.MINUTE)));
+
+        Log.d(TAG, " : HOUR SET : " + subTimes[0].trim());
+        Log.d(TAG, " : MINUTE SET : " + subTimes[1].trim());
+
         calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, minute);
+
+        if(isTomorrow(timeString)){
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH) + 1);
+        }
+
+        calendar.set(Calendar.HOUR_OF_DAY, Integer.valueOf(subTimes[0].trim()));
+        calendar.set(Calendar.MINUTE, Integer.valueOf(subTimes[1].trim()));
         calendar.set(Calendar.SECOND, 0);
 
         return calendar.getTimeInMillis();
+    }
+
+    private boolean isTomorrow(String time){
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        try {
+            if (sdf.parse(time).before(sdf.parse(sdf.format(new Date())))) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

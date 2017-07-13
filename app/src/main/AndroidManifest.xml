@@ -17,6 +17,11 @@
             </intent-filter>
         </activity>
         <service android:name=".service.StartAlarmService"/>
+        <receiver android:name=".service.AlarmFinishReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.steveq.qroclock_20.FINISH_RINGING"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -12,12 +12,14 @@ import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,15 +27,11 @@ import android.widget.TextView;
 
 import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.model.Alarm;
-import com.steveq.qroclock_20.presentation.adapters.AlarmsRecyclerViewAdapter;
 import com.steveq.qroclock_20.presentation.adapters.MyItemTouchCallback;
-import com.steveq.qroclock_20.service.StartAlarmService;
 
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
@@ -103,8 +101,9 @@ public class MainActivity extends AppCompatActivity implements MainView {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.scannerItem:
-                Intent intent = new Intent(this, StartAlarmService.class);
-                stopService(intent);
+                Intent intent = new Intent();
+                intent.setAction(getResources().getString(R.string.stop_alarm_action));
+                sendBroadcast(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -113,20 +112,14 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void showRecyclerView() {
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) alarmFab.getLayoutParams();
-        alarmsRecyclerView.setVisibility(View.VISIBLE);
         emptyTextView.setVisibility(View.GONE);
-        params.setAnchorId(R.id.alarmsRecyclerView);
-        alarmFab.setLayoutParams(params);
+        alarmsRecyclerView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void hideRecyclerView() {
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) alarmFab.getLayoutParams();
         alarmsRecyclerView.setVisibility(View.GONE);
         emptyTextView.setVisibility(View.VISIBLE);
-        params.setAnchorId(R.id.emptyRecyclerViewReplacement);
-        alarmFab.setLayoutParams(params);
     }
 
     @Override

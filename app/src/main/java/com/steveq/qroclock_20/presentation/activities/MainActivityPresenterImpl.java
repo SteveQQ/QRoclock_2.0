@@ -1,6 +1,8 @@
 package com.steveq.qroclock_20.presentation.activities;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -34,6 +36,7 @@ import java.util.List;
 public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTouchHelperListener {
     private static final String TAG = MainActivityPresenterImpl.class.getSimpleName();
     public static final int GET_RINGTONEPICKER = 10;
+    private static final int NOTIFICATION_ID = 1212;
     private static MainView mMainView;
     private static RecyclerView.Adapter alarmsAdapter;
     private static Repository repository;
@@ -47,6 +50,14 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
         alarmCreator = new AlarmCreator((Context)mMainView);
     }
 
+    public Repository getRepository() {
+        return repository;
+    }
+
+    public void setRepository(Repository repository) {
+        MainActivityPresenterImpl.repository = repository;
+    }
+
     //according to android documentation it is not considered
     //bad practice, passing argument to singleton constructor
     public static MainActivityPresenterImpl getInstance(MainView mainView){
@@ -54,6 +65,13 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
             instance = new MainActivityPresenterImpl(mainView);
         }
         return instance;
+    }
+
+    public static MainActivityPresenterImpl getInstance(){
+        if(instance != null){
+            return instance;
+        }
+        throw new IllegalStateException("MainActivityPresenterImpl need to be first created for certain context using getInstance(Mainview)");
     }
 
     @Override
@@ -95,20 +113,49 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
         reloadDataInAdapter();
     }
 
-    private static void reloadDataInAdapter(){
+    public static void reloadDataInAdapter(){
         ((AlarmsRecyclerViewAdapter)alarmsAdapter).setPayload(repository.getAlarms());
         alarmsAdapter.notifyDataSetChanged();
+        if(alarmsAdapter.getItemCount() > 0){
+            mMainView.showRecyclerView();
+        }
     }
 
     @Override
     public void onItemDismiss(int position) {
-        deletedAlarm = repository.deleteAlarm(((AlarmsRecyclerViewAdapter)alarmsAdapter).getPayload().get(position));
+        Alarm alarmToDelete = ((AlarmsRecyclerViewAdapter)alarmsAdapter).getPayload().get(position);
+        deletedAlarm = repository.deleteAlarm(alarmToDelete);
+        stopAlarmService(alarmToDelete);
         reloadDataInAdapter();
         mMainView.showSnackbar();
+        if(alarmsAdapter.getItemCount() == 0){
+            mMainView.hideRecyclerView();
+        }
+    }
+
+    private static Notification buildNotification(){
+        Notification.Builder builder = new Notification.Builder((Context)mMainView)
+                .setContentTitle(((Context)mMainView).getResources().getString(R.string.app_name))
+                .setContentText(((Context)mMainView).getResources().getString(R.string.active_alarms))
+                .setSmallIcon(R.drawable.alarm_vec)
+                .setOngoing(true);
+        return builder.build();
     }
 
     private static void startAlarmService(Alarm alarm){
         alarmCreator.registerAlarm(alarm);
+        if(alarmCreator.getActiveIntents().size() == 1){
+            NotificationManager notificationManager = (NotificationManager) ((Context)mMainView).getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.notify(NOTIFICATION_ID, buildNotification());
+        }
+    }
+
+    public static void stopAlarmService(Alarm alarm){
+        alarmCreator.unregisterAlarm(alarm);
+        if(alarmCreator.getActiveIntents().size() == 0){
+            NotificationManager notificationManager = (NotificationManager) ((Context)mMainView).getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(NOTIFICATION_ID);
+        }
     }
 
     public static class TimeListener implements TimePickerDialog.OnTimeSetListener{
@@ -187,7 +234,11 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
                 case R.id.activeCompatSwitch:
                     alarm.setActive(!alarm.getActive());
                     repository.updateAlarm(alarm);
-                    if(alarm.getActive()) startAlarmService(alarm);
+                    if(alarm.getActive()){
+                        startAlarmService(alarm);
+                    } else {
+                        stopAlarmService(alarm);
+                    }
                     break;
                 default:
                     break;

@@ -72,4 +72,20 @@ public class Alarm implements Comparable{
     public int compareTo(@NonNull Object o) {
         return this.getTime().compareTo(((Alarm)o).getTime());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Alarm alarm = (Alarm) o;
+
+        return time != null ? time.equals(alarm.time) : alarm.time == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return time != null ? time.hashCode() : 0;
+    }
 }

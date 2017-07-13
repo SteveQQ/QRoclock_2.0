@@ -143,7 +143,7 @@ public class AlarmsRepository implements Repository{
                 null
         );
 
-        List<Alarm> alarms = new ArrayList<>();
+        Map<Long, Alarm> alarms = new HashMap();
         while(cursor.moveToNext()){
             Alarm alarm = new Alarm();
             alarm.setId(cursor.getLong(cursor.getColumnIndex(AlarmsContract.AlarmsEntry._ID)));
@@ -151,14 +151,17 @@ public class AlarmsRepository implements Repository{
             alarm.setRingtone(cursor.getString(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_RINGTONE)));
             int activeStatus = cursor.getInt(cursor.getColumnIndex(AlarmsContract.AlarmsEntry.COLUMN_ACTIVE));
             alarm.setActive(activeStatus == 0);
-            alarms.add(alarm);
+            alarms.put(alarm.getId(), alarm);
         }
         cursor.close();
         close();
+        for(Long alarmId : alarms.keySet()){
+            alarms.get(alarmId).setDaysRepeat(getDaysForAlarm(alarmId));
+        }
         if(alarms.size() > 1){
             throw new IllegalStateException("Only one alarm should be returned from particular ID");
         } else {
-            return alarms.get(0);
+            return alarms.values().iterator().next();
         }
     }
 

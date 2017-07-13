@@ -5,7 +5,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import java.text.ParseException;
+import com.steveq.qroclock_20.database.AlarmsRepository;
+import com.steveq.qroclock_20.database.Repository;
+import com.steveq.qroclock_20.model.Alarm;
+import com.steveq.qroclock_20.presentation.activities.MainActivityPresenter;
+import com.steveq.qroclock_20.presentation.activities.MainActivityPresenterImpl;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -13,18 +18,19 @@ import java.util.Date;
  * Created by Adam on 2017-07-09.
  */
 
-public class TimeTickReceiver extends BroadcastReceiver {
-    private static final String TAG = TimeTickReceiver.class.getSimpleName();
+public class AlarmFinishReceiver extends BroadcastReceiver {
+    private static final String TAG = AlarmFinishReceiver.class.getSimpleName();
+    private MainActivityPresenter presenter = MainActivityPresenterImpl.getInstance();
+    private Repository repository = ((MainActivityPresenterImpl)presenter).getRepository();
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        if(intent.getAction().compareTo(Intent.ACTION_TIME_TICK) == 0){
-            String time = getCurrentTime();
-            Log.d(TAG, " : CURRENT TIME : " + time);
+        Alarm alarm = repository.getAlarmById(intent.getLongExtra(AlarmCreator.ALARM_ID, -1));
+        if(alarm.getDaysRepeat().isEmpty()){
+            MainActivityPresenterImpl.stopAlarmService(alarm);
+            alarm.setActive(false);
+            repository.updateAlarm(alarm);
+            MainActivityPresenterImpl.reloadDataInAdapter();
         }
-    }
-
-    private String getCurrentTime(){
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        return sdf.format(new Date());
     }
 }

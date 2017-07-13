@@ -8,22 +8,16 @@
     android:layout_height="match_parent"
     tools:context="com.steveq.qroclock_20.presentation.activities.MainActivity"
     android:orientation="vertical">
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/alarmsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        android:padding="4dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="?attr/actionBarSize">
         <android.support.v7.widget.Toolbar
             android:id="@+id/mainToolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:elevation="4dp">
+            android:layout_height="match_parent"
+            app:elevation="4dp"
+            android:fitsSystemWindows="true">
             <TextView
                 android:id="@+id/toolbarTitleTextView"
                 android:layout_width="wrap_content"
@@ -40,10 +34,18 @@
         android:id="@+id/emptyRecyclerViewReplacement"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:visibility="gone"
+        android:gravity="center"
         android:text="no alarms" />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/alarmsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="4dp"
+        android:scrollbars="vertical"
+        android:visibility="visible"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/addAlarmFab"
@@ -51,8 +53,9 @@
         android:layout_height="wrap_content"
         app:srcCompat="@drawable/plus_vec"
         android:layout_margin="16dp"
-        app:layout_anchor="@id/alarmsRecyclerView"
-        app:layout_anchorGravity="bottom|right"
+        android:layout_gravity="bottom|end"
+        android:clickable="true"
         app:layout_behavior="com.steveq.qroclock_20.presentation.behaviors.ScrollAwareFAB"/>
+
 
 </android.support.design.widget.CoordinatorLayout>

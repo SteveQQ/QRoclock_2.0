@@ -3,6 +3,7 @@ package com.steveq.qroclock_20.service;
 import android.app.Notification;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
@@ -26,22 +27,34 @@ import com.steveq.qroclock_20.R;
 public class StartAlarmService extends Service {
     private static final String TAG = StartAlarmService.class.getSimpleName();
     private static final int FOREGROUND_ID = 1111;
-    private Ringtone ringtone;
     private boolean isWaking;
+    private AlarmBasic alarmBasic;
+    private BroadcastReceiver alarmStopReceiver;
+
+    public class AlarmBasic{
+        private Ringtone ringtone;
+        private Long alarmId;
+
+        public AlarmBasic(Ringtone ringtone, Long alarmId) {
+            this.ringtone = ringtone;
+            this.alarmId = alarmId;
+        }
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, " : SERVICE ON CREATE : ");
-    }
+        alarmStopReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                isWaking = false;
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(getResources().getString(R.string.stop_alarm_action));
+        registerReceiver(alarmStopReceiver, filter);
 
-    private Notification buildNotification(){
-        Notification.Builder builder = new Notification.Builder(this)
-                                            .setContentTitle(getResources().getString(R.string.app_name))
-                                            .setContentText(getResources().getString(R.string.active_alarms))
-                                            .setSmallIcon(R.drawable.alarm_vec)
-                                            .setOngoing(true);
-        return builder.build();
+        Log.d(TAG, " : SERVICE ON CREATE : ");
     }
 
     public void playRingtone(){
@@ -54,21 +67,30 @@ public class StartAlarmService extends Service {
             @Override
             public void run() {
                 while(isWaking){
-                    if(!ringtone.isPlaying()){
-                        ringtone.play();
+                    if(!alarmBasic.ringtone.isPlaying()){
+                        alarmBasic.ringtone.play();
                         //volume ringtone up
                         audioManager.setStreamVolume(AudioManager.STREAM_RING, audioManager.getStreamMaxVolume(AudioManager.STREAM_RING), 0);
                     }
                 }
+                sendAlarmBackBroadcast();
+                stopSelf();
             }
         });
     }
 
+    private void sendAlarmBackBroadcast(){
+        Intent intent = new Intent();
+        intent.setAction(getResources().getString(R.string.finish_ringing_action));
+        intent.putExtra(AlarmCreator.ALARM_ID, alarmBasic.alarmId);
+        sendBroadcast(intent);
+    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(FOREGROUND_ID, buildNotification());
         if(getResources().getString(R.string.start_service_action).equals(intent.getAction())){
-            ringtone = RingtoneManager.getRingtone(this, Uri.parse(intent.getStringExtra(AlarmCreator.RINGTONE_PLAY)));
+            alarmBasic = new AlarmBasic(RingtoneManager.getRingtone(this, Uri.parse(intent.getStringExtra(AlarmCreator.RINGTONE_PLAY))),
+                                        intent.getLongExtra(AlarmCreator.ALARM_ID, -1));
             playRingtone();
         }
         return Service.START_STICKY;
@@ -83,7 +105,7 @@ public class StartAlarmService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        isWaking = false;
+        unregisterReceiver(alarmStopReceiver);
         Log.d(TAG, ": SERVICE DESTROYED : ");
     }
 }
