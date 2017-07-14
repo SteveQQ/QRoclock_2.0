@@ -47,25 +47,27 @@ public class AlarmCreator {
     }
 
     public void registerAlarm(Alarm alarm){
-        Long timeStamp = getTimeInMillis(alarm.getTime());
-        Intent intent = new Intent(context, StartAlarmService.class);
-        intent.setAction(context.getResources().getString(R.string.start_service_action));
-        intent.putExtra(RINGTONE_PLAY, alarm.getRingtone());
-        intent.putExtra(ALARM_ID, alarm.getId());
-        intent.putExtra(DAYS_REPEAT, alarm.getDaysRepeat().toArray(new String[]{}));
+        if(alarm.getActive()){
+            Long timeStamp = getTimeInMillis(alarm.getTime());
+            Intent intent = new Intent(context, StartAlarmService.class);
+            intent.setAction(context.getResources().getString(R.string.start_service_action));
+            intent.putExtra(RINGTONE_PLAY, alarm.getRingtone());
+            intent.putExtra(ALARM_ID, alarm.getId());
+            intent.putExtra(DAYS_REPEAT, alarm.getDaysRepeat().toArray(new String[]{}));
 
-        Log.d(TAG, " : previous intent : " + activeIntents.get(alarm));
+            Log.d(TAG, " : previous intent : " + activeIntents.get(alarm));
 
-        unregisterAlarm(alarm);
+            unregisterAlarm(alarm);
 
-        activeIntents.put(alarm, PendingIntent.getService(context, (int)alarm.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT));
-        Log.d(TAG, " : TIMESTAMP : " + timeStamp);
-        Log.d(TAG, " : current intent : " + activeIntents.get(alarm));
+            activeIntents.put(alarm, PendingIntent.getService(context, (int)alarm.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT));
+            Log.d(TAG, " : TIMESTAMP : " + timeStamp);
+            Log.d(TAG, " : current intent : " + activeIntents.get(alarm));
 
-        if(alarm.getDaysRepeat().isEmpty()){
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeStamp, activeIntents.get(alarm));
-        } else {
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeStamp, AlarmManager.INTERVAL_DAY, activeIntents.get(alarm));
+            if(alarm.getDaysRepeat().isEmpty()){
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, timeStamp, activeIntents.get(alarm));
+            } else {
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, timeStamp, AlarmManager.INTERVAL_DAY, activeIntents.get(alarm));
+            }
         }
     }
 

@@ -26,7 +26,8 @@ public class AlarmFinishReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Alarm alarm = repository.getAlarmById(intent.getLongExtra(AlarmCreator.ALARM_ID, -1));
-        if(alarm.getDaysRepeat().isEmpty()){
+        //If alarm exists yet (It can be deleted when alarm ringing)
+        if(alarm.getId() > 0 && alarm.getDaysRepeat().isEmpty()){
             MainActivityPresenterImpl.stopAlarmService(alarm);
             alarm.setActive(false);
             repository.updateAlarm(alarm);

@@ -160,8 +160,10 @@ public class AlarmsRepository implements Repository{
         }
         if(alarms.size() > 1){
             throw new IllegalStateException("Only one alarm should be returned from particular ID");
-        } else {
+        } else if(alarms.size() == 1){
             return alarms.values().iterator().next();
+        } else {
+            return new Alarm();
         }
     }
 
