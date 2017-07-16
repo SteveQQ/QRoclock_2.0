@@ -7,6 +7,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.support.design.widget.Snackbar;
@@ -15,12 +16,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TimePicker;
 
+import com.steveq.qroclock_20.QRoclockApplication;
 import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.database.AlarmsRepository;
 import com.steveq.qroclock_20.database.Repository;
 import com.steveq.qroclock_20.model.Alarm;
 import com.steveq.qroclock_20.presentation.adapters.AlarmsRecyclerViewAdapter;
 import com.steveq.qroclock_20.presentation.adapters.ItemTouchHelperListener;
+import com.steveq.qroclock_20.scanner.ScannerCallback;
 import com.steveq.qroclock_20.service.AlarmCreator;
 import com.steveq.qroclock_20.service.StartAlarmService;
 
@@ -43,11 +46,15 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
     private static MainActivityPresenterImpl instance;
     private Alarm deletedAlarm;
     private static AlarmCreator alarmCreator;
+    public static SharedPreferences sharedPreferences;
+    public static SharedPreferences.Editor editor;
 
     private MainActivityPresenterImpl(MainView mainView) {
         mMainView = mainView;
-        repository = new AlarmsRepository((Activity)mainView);
-        alarmCreator = new AlarmCreator((Context)mMainView);
+        repository = new AlarmsRepository((Activity) mainView);
+        alarmCreator = new AlarmCreator((Context) mMainView);
+        sharedPreferences = ((Activity) mMainView).getSharedPreferences(((Activity) mMainView).getString(R.string.configured_qr), ((Activity) mMainView).MODE_PRIVATE);
+        editor =sharedPreferences.edit();
     }
 
     public Repository getRepository() {
@@ -184,12 +191,16 @@ public class MainActivityPresenterImpl implements MainActivityPresenter, ItemTou
             Alarm alarmCheck = repository.getAlarmByTime(timeFormat);
             Log.d(TAG, "ALARM CHECK : " + alarm);
             if(alarm.getId() == 0 && alarmCheck.getId() == 0){
-                alarm.setTime(timeFormat);
-                alarm.setRingtone(((Context) mMainView).getResources().getString(R.string.default_ringtone_uri));
-                alarm.setDaysRepeat(Collections.<String>emptyList());
-                alarm.setActive(true);
-                alarm = repository.createAlarm(alarm);
-                startAlarmService(alarm);
+                if(sharedPreferences.contains(((Activity)mMainView).getString(R.string.QR))){
+                    alarm.setTime(timeFormat);
+                    alarm.setRingtone(((Context) mMainView).getResources().getString(R.string.default_ringtone_uri));
+                    alarm.setDaysRepeat(Collections.<String>emptyList());
+                    alarm.setActive(true);
+                    alarm = repository.createAlarm(alarm);
+                    startAlarmService(alarm);
+                } else {
+                    mMainView.showConfigureQrSnackbar();
+                }
             } else if(alarm.getId() != 0){
                 alarm.setTime(timeFormat);
                 repository.updateAlarm(alarm);

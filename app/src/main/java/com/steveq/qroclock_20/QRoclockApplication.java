@@ -1,6 +1,7 @@
 package com.steveq.qroclock_20;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
@@ -9,6 +10,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
  */
 
 public class QRoclockApplication extends Application {
+
     @Override
     public void onCreate() {
         super.onCreate();

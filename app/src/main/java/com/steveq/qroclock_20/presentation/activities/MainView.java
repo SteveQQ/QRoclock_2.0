@@ -16,4 +16,5 @@ public interface MainView {
     void showAddAlarmDialog(Alarm initAlarm);
     void showDaysDialog(Alarm alarm);
     void showSnackbar();
+    void showConfigureQrSnackbar();
 }

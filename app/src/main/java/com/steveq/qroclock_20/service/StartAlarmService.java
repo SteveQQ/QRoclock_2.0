@@ -21,6 +21,7 @@ import android.util.Log;
 
 import com.steveq.qroclock_20.R;
 import com.steveq.qroclock_20.model.Alarm;
+import com.steveq.qroclock_20.presentation.activities.ScannerActivity;
 
 import java.util.Arrays;
 
@@ -31,7 +32,7 @@ import java.util.Arrays;
 public class StartAlarmService extends Service {
     private static final String TAG = StartAlarmService.class.getSimpleName();
     private static final int FOREGROUND_ID = 1111;
-    private boolean isWaking;
+    public static boolean isWaking;
     private AlarmBasic alarmBasic;
     private BroadcastReceiver alarmStopReceiver;
 
@@ -73,6 +74,7 @@ public class StartAlarmService extends Service {
     }
 
     public void playRingtone(){
+        startScannerActivity();
         isWaking = true;
         final AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         HandlerThread thread = new HandlerThread("QRoclock_waking");
@@ -93,6 +95,11 @@ public class StartAlarmService extends Service {
                 stopSelf();
             }
         });
+    }
+
+    private void startScannerActivity() {
+        Intent intent = new Intent(this, ScannerActivity.class);
+        startActivity(intent);
     }
 
     private void sendAlarmBackBroadcast(){

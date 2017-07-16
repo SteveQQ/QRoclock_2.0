@@ -12,14 +12,12 @@ import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,6 +35,7 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 public class MainActivity extends AppCompatActivity implements MainView {
     private static final String TAG = MainActivity.class.getSimpleName();
+    public static final int SCAN_QR_RC = 1133;
     private RecyclerView alarmsRecyclerView;
     private TextView emptyTextView;
     private FloatingActionButton alarmFab;
@@ -101,9 +100,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()){
             case R.id.scannerItem:
-                Intent intent = new Intent();
-                intent.setAction(getResources().getString(R.string.stop_alarm_action));
-                sendBroadcast(intent);
+                Intent intent = new Intent(this, ScannerActivity.class);
+                startActivityForResult(intent, SCAN_QR_RC);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -166,13 +164,19 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void showSnackbar() {
-        Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.delete_message), BaseTransientBottomBar.LENGTH_INDEFINITE)
+        Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.delete_message), BaseTransientBottomBar.LENGTH_LONG)
                                     .setAction(getResources().getString(R.string.undo), new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
                                             presenter.restoreAlarm();
                                         }
                                     });
+        snackbar.show();
+    }
+
+    @Override
+    public void showConfigureQrSnackbar() {
+        Snackbar snackbar = Snackbar.make(rootView, getResources().getString(R.string.need_qr), BaseTransientBottomBar.LENGTH_LONG);
         snackbar.show();
     }
 

@@ -19,4 +19,12 @@
     <string name="finish_ringing_action">com.steveq.qroclock_20.FINISH_RINGING</string>
     <string name="stop_alarm_action">com.steveq.qroclock_20.STOP_ALARM</string>
     <string name="active_alarms">You have active alarms</string>
+    <string name="configure_qr">CONfiGURE</string>
+    <string name="wake_up_qr">WAKE UP</string>
+    <string name="configured_qr">configured_qr</string>
+    <string name="QR">qr</string>
+    <string name="scan_to_wake">Scan QR to stop the alarm</string>
+    <string name="scan_to_configure">Scan to configure new QR</string>
+    <string name="need_qr">Configure QR before setting alarm</string>
+    <string name="qr_set">QR configured !</string>
 </resources>

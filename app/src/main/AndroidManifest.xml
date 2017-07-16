@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.steveq.qroclock_20">
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".QRoclockApplication"
         android:allowBackup="true"
@@ -13,15 +15,22 @@
         <activity android:name=".presentation.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".service.StartAlarmService"/>
-        <receiver android:name=".service.AlarmFinishReceiver" android:exported="true">
+
+        <service android:name=".service.StartAlarmService" />
+
+        <receiver
+            android:name=".service.AlarmFinishReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.steveq.qroclock_20.FINISH_RINGING"/>
+                <action android:name="com.steveq.qroclock_20.FINISH_RINGING" />
             </intent-filter>
         </receiver>
+
+        <activity android:name=".presentation.activities.ScannerActivity"></activity>
     </application>
 
 </manifest>
